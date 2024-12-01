@@ -1,35 +1,44 @@
-document.getElementById('lookup').addEventListener('click', function (){
-    const country = document.getElementById('country').value;
+document.getElementById('lookup').addEventListener('click', function () {
+    const country = document.getElementById('country').value.trim();
 
-
-    if(!country){
+    if (!country) {
         alert('Please enter a country name');
         return;
-
     }
 
     const xhr = new XMLHttpRequest();
     xhr.open('GET', `world.php?country=${encodeURIComponent(country)}`, true);
 
-    xhr.onload = function(){
-        if(xhr.status === 200){
-            const data = JSON.parse(xhr.responseText);
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = '';
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            try {
+                const data = JSON.parse(xhr.responseText);
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = '';
 
-            if(data.length > 0){
-                data.forEach(item => {
-                    const p = document.createElement('p');
-                    p.textContent = `${item.name} is ruled by ${item.head_of_state}`;
-                    resultDiv.appendChild(p);
-
-                });
-            }else{
-                resultDiv.textContent = 'No results found.';
+                if (data.length > 0) {
+                    data.forEach(item => {
+                        const p = document.createElement('p');
+                        p.textContent = `${item.name} is ruled by ${item.head_of_state}`;
+                        resultDiv.appendChild(p);
+                    });
+                } else {
+                    resultDiv.textContent = 'No results found.';
+                }
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+                document.getElementById('result').textContent = 'An error occurred.';
             }
+        } else {
+            console.error('Request failed:', xhr.statusText);
+            document.getElementById('result').textContent = 'Failed to fetch data.';
         }
     };
+
+    xhr.onerror = function () {
+        console.error('Request error');
+        document.getElementById('result').textContent = 'An error occurred during the request.';
+    };
+
     xhr.send();
-
-
 });
