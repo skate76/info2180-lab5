@@ -1,71 +1,63 @@
-document.getElementById('lookup').addEventListener('click', function () {
-    const country = document.getElementById('country').value.trim();
+document.addEventListener("DOMContentLoaded", function() {
+    const lookupButton = document.getElementById('lookup');
+    const countryInput = document.getElementById('country');
+    const resultDiv = document.getElementById('result');
 
-    if (!country) {
-        alert('Please enter a country name');
-        return;
+    lookupButton.addEventListener('click', function() {
+        const country = countryInput.value.trim();  
+
+        
+        if (!country) {
+            resultDiv.innerHTML = '<p>Loading all countries...</p>';
+            fetchCountries();  
+            return;
+        }
+
+       
+        fetchCountry(country);
+    });
+
+   
+    function fetchCountries() {
+        const xhr = new XMLHttpRequest();
+        const url = `world.php`; 
+
+        xhr.open('GET', url, true);
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                resultDiv.innerHTML = xhr.responseText; 
+            } else {
+                resultDiv.innerHTML = '<p>Error fetching data from the server.</p>'; 
+            }
+        };
+
+        xhr.onerror = function() {
+            resultDiv.innerHTML = '<p>Request failed.</p>'; 
+        };
+
+        xhr.send();
     }
 
-    fetch(`world.php?country=${encodeURIComponent(country)}`)
-    .then(response => {
-        if(!response.ok){
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        const resultDiv = document.getElementById('result');
-        resultDiv.innerHTML = '';
+   
+    function fetchCountry(country) {
+        const xhr = new XMLHttpRequest();
+        const url = `world.php?country=${encodeURIComponent(country)}`;
 
-        if(data.length > 0){
-            data.forEach(item => {
-                const p = document.createElement('p');
-                p.textContent = `${item.name} is ruled by ${item.head_of_state}`;
-                resultDiv.appendChild(p);
-            });
-        } else{
-            resultDiv.textContent = 'No results found';
-        }
-    })
-    .catch(error => {
-        console.error('Error during fetch operation:' , error);
-        document.getElementById('result').textContent = 'An error occurred while fetching the data';
-    });
-});
+        xhr.open('GET', url, true);
 
-    /*const xhr = new XMLHttpRequest();
-    xhr.open('GET', `world.php?country=${encodeURIComponent(country)}`, true);
-
-    xhr.onload = function () {
-        if (xhr.status === 200) {
-            try {
-                const data = JSON.parse(xhr.responseText);
-                const resultDiv = document.getElementById('result');
-                resultDiv.innerHTML = '';
-
-                if (data.length > 0) {
-                    data.forEach(item => {
-                        const p = document.createElement('p');
-                        p.textContent = `${item.name} is ruled by ${item.head_of_state}`;
-                        resultDiv.appendChild(p);
-                    });
-                } else {
-                    resultDiv.textContent = 'No results found.';
-                }
-            } catch (error) {
-                console.error('Error parsing JSON:', error);
-                document.getElementById('result').textContent = 'An error occurred.';
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                resultDiv.innerHTML = xhr.responseText; 
+            } else {
+                resultDiv.innerHTML = '<p>Error fetching data from the server.</p>'; 
             }
-        } else {
-            console.error('Request failed:', xhr.statusText);
-            document.getElementById('result').textContent = 'Failed to fetch data.';
-        }
-    };
+        };
 
-    xhr.onerror = function () {
-        console.error('Request error');
-        document.getElementById('result').textContent = 'An error occurred during the request.';
-    };
+        xhr.onerror = function() {
+            resultDiv.innerHTML = '<p>Request failed.</p>'; 
+        };
 
-    xhr.send();
-});*/
+        xhr.send();
+    }
+});
